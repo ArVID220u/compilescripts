@@ -1,0 +1,10 @@
+#!/usr/bin/env python3
+from sys import argv
+import os
+
+name = argv[1]
+if not name.endswith(".tex"):
+    name += ".tex"
+
+command = "latexmk -pdf " + name
+os.system(command)

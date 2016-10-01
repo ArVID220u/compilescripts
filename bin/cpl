@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+from sys import argv
+from sys import exit
+import os
+
+if len(argv) == 1:
+    print('No arguments supplied. Type "cpl -h" for help.')
+    exit()
+
+
+if argv[1] == "-h":
+    # display help
+    print()
+    print('cpl is a tool for easy compilation c++ files. The submitted files are compiled into one executable, with the same name as the first source file.')
+    print()
+    print('cpl [-h] [-o] [-g] filename(s)')
+    print()
+    print('Flags:')
+    print('    -h: Help.')
+    print('    -o: Compile the original file. More specifically, don\'t change "#include <bits/stdc++.h>" into "#include <allc++.h>" for compilation.')
+    print('    -g: Compile for debugging. The executable will be prefixed with "d-". Will also compile one normal version.')
+    exit()
+
+# compile c++ file with same flags as kattis uses
+# but first change the contents of the file: if the first line includes bits/stdc++.h, then change it to the precompiled allc++.h, if not the flag -o (original) is found
+filenames = []
+name = ""
+original = False
+debug = False
+c = 0
+for i in range(1,len(argv)):
+    if argv[i] == "-o":
+        original = True
+        continue
+    if argv[i] == "-g":
+        debug = True
+        continue
+    thisname = argv[i]
+    thisfilename = thisname
+    if not thisfilename.endswith(".cpp"):
+        thisfilename += ".cpp"
+    else:
+        thisname = thisname[:-4]
+    if c == 0:
+        name = thisname
+    filenames.append(thisfilename)
+    c += 1
+
+new_contents = []
+for index, filename in enumerate(filenames):
+    with open(filename, "r") as f:
+        contents = f.read()
+        if contents.startswith("#include <bits/stdc++.h>") and not original:
+            hej = contents.splitlines(True)
+            hej[0] = "#include <allc++.h>\n"
+            new_contents.append(hej)
+            tempname = filename[:-4] + "allc++"
+            tempokay = True
+            while tempokay:
+                try:
+                    sf = open(tempname + ".cpp","r")
+                    tempname = tempname + "x"
+                    sf.close()
+                except:
+                    tempokay = False
+            filenames[index] = tempname + ".cpp"
+        elif contents.startswith("#include <bits/stdc++.h>") and original:
+            new_contents.append("hej")
+
+if len(new_contents) > 0 and not original:
+    print('Changing "#include <bits/stdc++.h>" into "#include <allc++.h>" for faster compiling. Use flag -o (original) to prevent this behavior (for example, if you\'ve recently updated gcc, and are experiencing strange results).')
+    for index, filename in enumerate(filenames):
+        if index < len(new_contents):
+            with open(filename, "w") as f:
+                f.writelines(new_contents[index])
+elif original and len(new_contents) > 0:
+    print('Not changing "#include <bits/stdc++.h>" into "#include <allc++.h>"; keeping ' + filename + ' unchanged.')
+
+if debug:
+    print("Compiling with debugging option \"-g\" into d-" + name + ", and without debugging into " + name + ".")
+
+command = "g++-5 -o " + name
+for filename in filenames:
+    command += " " + filename
+command += " -std=c++11"
+os.system(command)
+if debug:
+    dname = "d-" + name
+    command = "g++-5 -o " + dname
+    for filename in filenames:
+        command += " " + filename
+    command += " -std=c++11"
+    command += " -g"
+    os.system(command)
+if len(new_contents) > 0 and not original:
+    # remove temporary file
+    for index, filename in enumerate(filenames):
+        if index < len(new_contents):
+            os.remove(filename)
