@@ -1,4 +1,4 @@
-# templatescripts
+# compilescripts
 
 A collection of scripts simple compilation, in various languages. Calling one of the scripts will compile the specified file, in the script's language.
 
