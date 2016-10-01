@@ -14,7 +14,7 @@
 #### Options
 
 - `-h`: Help
-- `-o`: Compile the original file. More specifically, don't change "#include <bits/stdc++.h>" into "#include <allc++.h>" for compilation.
+- `-o`: Compile the original file. More specifically, don't change "#include &lt;bits/stdc++.h&gt;" into "#include &lt;allc++.h&gt;" for compilation.
 - `-g`: Compile for debugging. The executable will be prefixed with "d-". Will also compile one normal version.
 
 #### Description
