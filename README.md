@@ -8,7 +8,7 @@ A list of all the scripts, and thus all the supported languages, can be found in
 
 To be able to use the commands everywhere, we need to symlink them into the `/usr/local/bin` folder. Either symlink them file by file, or use this command to link them all at once:
 
-    ln -s ~/path/to/templatescripts/bin/* /usr/local/bin
+    ln -s ~/path/to/compilescripts/bin/* /usr/local/bin
 
 Whenever new languages are added, run the above command again, to make their scripts universally available. There is no need in calling it, though, upon an edit in an existing file (thanks to symlinks).
 
