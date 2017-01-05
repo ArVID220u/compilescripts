@@ -1,6 +1,6 @@
 # compilescripts
 
-A collection of scripts simple compilation, in various languages. Calling one of the scripts will compile the specified file, in the script's language.
+A collection of scripts for simple compilation, in various languages. Calling one of the scripts will compile the specified file, in the script's language.
 
 A list of all the scripts, and thus all the supported languages, can be found in the `docs.md` file. All scripts are located in the `bin` folder.
 
