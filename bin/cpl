@@ -19,6 +19,7 @@ if argv[1] == "-h":
     print('    -h: Help.')
     print('    -o: Compile the original file. More specifically, don\'t change "#include <bits/stdc++.h>" into "#include <allc++.h>" for compilation.')
     print('    -g: Compile for debugging. The executable will be prefixed with "d-". Will also compile one normal version.')
+    print('    -notsimon: Do not use Simon Lindholm\'s fancy flags')
     exit()
 
 # compile c++ file with same flags as kattis uses
@@ -27,6 +28,7 @@ filenames = []
 name = ""
 original = False
 debug = False
+simon = True
 c = 0
 for i in range(1,len(argv)):
     if argv[i] == "-o":
@@ -34,6 +36,9 @@ for i in range(1,len(argv)):
         continue
     if argv[i] == "-g":
         debug = True
+        continue
+    if argv[i] == "-notsimon":
+        simon = False
         continue
     thisname = argv[i]
     thisfilename = thisname
@@ -83,6 +88,8 @@ command = "g++-5 -o " + name
 for filename in filenames:
     command += " " + filename
 command += " -std=c++11"
+if simon:
+    command += " -fsanitize=address,undefined -Wall -Wconversion"
 os.system(command)
 if debug:
     dname = "d-" + name
