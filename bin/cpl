@@ -18,7 +18,8 @@ if argv[1] == "-h":
     print('Flags:')
     print('    -h: Help.')
     print('    -o: Compile the original file. More specifically, don\'t change "#include <bits/stdc++.h>" into "#include <allc++.h>" for compilation.')
-    print('    -g: Compile for debugging. The executable will be prefixed with "d-". Will also compile one normal version.')
+    print('    -g: Compile for gdb debugging. The executable will be prefixed with "gdb".')
+    print('    -d: Compile with the -D_GLIBCXX_DEBUG flag. Useful for segfaults. The executable will be prefixed with "d".')
     print('    -notsimon: Do not use Simon Lindholm\'s fancy flags')
     exit()
 
@@ -27,15 +28,19 @@ if argv[1] == "-h":
 filenames = []
 name = ""
 original = False
-debug = False
+gdb = False
+debug_flag = False
 simon = True
 c = 0
 for i in range(1,len(argv)):
     if argv[i] == "-o":
         original = True
         continue
-    if argv[i] == "-g":
-        debug = True
+    if argv[i] == "-gdb":
+        gdb = True
+        continue
+    if argv[i] == "-d":
+        debug_flag = True
         continue
     if argv[i] == "-notsimon":
         simon = False
@@ -81,8 +86,10 @@ if len(new_contents) > 0 and not original:
 elif original and len(new_contents) > 0:
     print('Not changing "#include <bits/stdc++.h>" into "#include <allc++.h>"; keeping ' + filename + ' unchanged.')
 
-if debug:
-    print("Compiling with debugging option \"-g\" into d-" + name + ", and without debugging into " + name + ".")
+if gdb:
+    print("Compiling with debugging option \"-g\" into gdb" + name + ".")
+if debug_flag:
+    print("Compiling with the -D_GLIBCXX_DEBUG flag into d-" + name + ".")
 
 command = "g++-5 -o " + name
 for filename in filenames:
@@ -90,14 +97,29 @@ for filename in filenames:
 command += " -std=c++11"
 if simon:
     command += " -fsanitize=address,undefined -Wall -Wconversion"
-os.system(command)
-if debug:
-    dname = "d-" + name
+if !(gdb || debug_flag):
+    os.system(command)
+if gdb:
+    dname = "gdb" + name
     command = "g++-5 -o " + dname
+    for filename in filenames:
+        ffff = filename
+        if ffff.endswith("allc++.cpp"):
+            ffff = filename[:-10]
+            ffff += ".cpp"
+        command += " " + ffff
+    command += " -std=c++11"
+    command += " -fsanitize=address,undefined -Wall -Wconversion"
+    command += " -g"
+    os.system(command)
+if debug_flag:
+    command = "g++-5 -o " + "d" + name
     for filename in filenames:
         command += " " + filename
     command += " -std=c++11"
-    command += " -g"
+    command += " -D_GLIBCXX_DEBUG=1"
+    if simon:
+        command += " -fsanitize=address,undefined -Wall -Wconversion"
     os.system(command)
 if len(new_contents) > 0 and not original:
     # remove temporary file
