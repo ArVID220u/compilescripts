@@ -13,37 +13,49 @@ if argv[1] == "-h":
     print()
     print('cpl is a tool for easy compilation c++ files. The submitted files are compiled into one executable, with the same name as the first source file.')
     print()
-    print('cpl [-h] [-o] [-g] filename(s)')
+    print('cpl [-h] [-o] [-g] [-d] filename(s)')
     print()
     print('Flags:')
     print('    -h: Help.')
-    print('    -o: Compile the original file. More specifically, don\'t change "#include <bits/stdc++.h>" into "#include <allc++.h>" for compilation.')
+    print('    -o: Compile with allc++ file. More specifically, do change "#include <bits/stdc++.h>" into "#include <allc++.h>" for compilation.')
     print('    -g: Compile for gdb debugging. The executable will be prefixed with "gdb".')
     print('    -d: Compile with the -D_GLIBCXX_DEBUG flag. Useful for segfaults. The executable will be prefixed with "d".')
-    print('    -notsimon: Do not use Simon Lindholm\'s fancy flags')
+    print('    -dh: Don\'t hide the warnings.')
+    print('    -notsimon: Do not use Simon Lindholm\'s fancy flags.')
+    print('    -O2: Use the O2 optimization.')
     exit()
+
+
 
 # compile c++ file with same flags as kattis uses
 # but first change the contents of the file: if the first line includes bits/stdc++.h, then change it to the precompiled allc++.h, if not the flag -o (original) is found
 filenames = []
 name = ""
-original = False
+original = True
 gdb = False
 debug_flag = False
 simon = True
+should_hide_warnings = True
+o2 = False
 c = 0
 for i in range(1,len(argv)):
     if argv[i] == "-o":
-        original = True
+        original = False
         continue
-    if argv[i] == "-gdb":
+    if argv[i] == "-g":
         gdb = True
+        continue
+    if argv[i] == "-dh":
+        should_hide_warnings = False
         continue
     if argv[i] == "-d":
         debug_flag = True
         continue
     if argv[i] == "-notsimon":
         simon = False
+        continue
+    if argv[i] == "-O2":
+        o2 = True
         continue
     thisname = argv[i]
     thisfilename = thisname
@@ -55,6 +67,11 @@ for i in range(1,len(argv)):
         name = thisname
     filenames.append(thisfilename)
     c += 1
+
+hide_warnings = ""
+if should_hide_warnings:
+    # don't show lots of warnings
+    hide_warnings = "2>&1 >/dev/null | grep -v -e '^/var/folders/*' -e '^[[:space:]]*\.section __TEXT,__textcoal_nt,coalesced,pure_instructions' -e '^[[:space:]]*\^[[:space:]]*~*'"
 
 new_contents = []
 for index, filename in enumerate(filenames):
@@ -84,7 +101,8 @@ if len(new_contents) > 0 and not original:
             with open(filename, "w") as f:
                 f.writelines(new_contents[index])
 elif original and len(new_contents) > 0:
-    print('Not changing "#include <bits/stdc++.h>" into "#include <allc++.h>"; keeping ' + filename + ' unchanged.')
+    #print('Not changing "#include <bits/stdc++.h>" into "#include <allc++.h>"; keeping ' + filename + ' unchanged.')
+    bbbbbbbbbbb = "hej"
 
 if gdb:
     print("Compiling with debugging option \"-g\" into gdb" + name + ".")
@@ -97,7 +115,10 @@ for filename in filenames:
 command += " -std=c++11"
 if simon:
     command += " -fsanitize=address,undefined -Wall -Wconversion"
-if !(gdb || debug_flag):
+if o2:
+    command += " -O2"
+command += " " + hide_warnings
+if (not gdb) and (not debug_flag):
     os.system(command)
 if gdb:
     dname = "gdb" + name
@@ -111,6 +132,9 @@ if gdb:
     command += " -std=c++11"
     command += " -fsanitize=address,undefined -Wall -Wconversion"
     command += " -g"
+    if o2:
+        command += " -O2"
+    command += " " + hide_warnings
     os.system(command)
 if debug_flag:
     command = "g++-5 -o " + "d" + name
@@ -120,6 +144,9 @@ if debug_flag:
     command += " -D_GLIBCXX_DEBUG=1"
     if simon:
         command += " -fsanitize=address,undefined -Wall -Wconversion"
+    if o2:
+        command += " -O2"
+    command += " " + hide_warnings
     os.system(command)
 if len(new_contents) > 0 and not original:
     # remove temporary file
